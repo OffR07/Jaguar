@@ -24,6 +24,7 @@
         justify-content: center;
         background: #022c22;
         z-index: 9999;
+        transition: opacity 0.5s ease;
       }
       #error-display {
         display: none;
@@ -39,8 +40,6 @@
         align-items: center;
         flex-direction: column;
       }
-      .scrollbar-hide::-webkit-scrollbar { display: none; }
-      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     <script type="importmap">
 {
@@ -58,26 +57,26 @@
   </head>
   <body>
     <div id="error-display">
-      <h1 style="color: #fbbf24; font-size: 24px; margin-bottom: 10px;">ERRO DE CARREGAMENTO</h1>
-      <p id="error-msg">O navegador não conseguiu iniciar o motor Jaguar.</p>
-      <button onclick="location.reload()" style="margin-top: 20px; background: #fbbf24; color: #022c22; padding: 10px 20px; border-radius: 8px; font-weight: bold;">Tentar Novamente</button>
+      <h1 style="color: #fbbf24; font-size: 24px; margin-bottom: 10px; font-weight: 900;">FALHA NO MOTOR JAGUAR</h1>
+      <p id="error-msg">Ocorreu um erro ao inicializar os scripts da arena.</p>
+      <button onclick="location.reload()" style="margin-top: 20px; background: #fbbf24; color: #022c22; padding: 12px 24px; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Reiniciar Sistema</button>
     </div>
 
     <div id="loader">
       <div class="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-      <p class="mt-4 text-amber-400 font-black italic uppercase tracking-widest text-xs">Carregando Arena...</p>
+      <p class="mt-4 text-amber-400 font-black italic uppercase tracking-widest text-[10px]">Iniciando Arena...</p>
     </div>
 
     <div id="root"></div>
 
+    <!-- Script de monitoramento do estado de carregamento -->
     <script type="module">
-      // Monitor de falha de carregamento
       const timeout = setTimeout(() => {
         if (!window.JaguarReady) {
           document.getElementById('error-display').style.display = 'flex';
           document.getElementById('loader').style.display = 'none';
         }
-      }, 8000);
+      }, 12000);
 
       window.addEventListener('JaguarMounted', () => {
         clearTimeout(timeout);
@@ -88,6 +87,9 @@
         }
       });
     </script>
-    <script type="module" src="./index.tsx"></script>
+
+    <!-- O esm.sh/run processa automaticamente scripts do tipo text/tsx -->
+    <script src="https://esm.sh/run" type="module"></script>
+    <script type="text/tsx" src="./index.tsx"></script>
   </body>
 </html>

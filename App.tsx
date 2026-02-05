@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, AppView, Bet } from './types.ts';
-import { TopNavigation } from './components/Navigation.tsx';
-import { AuthSystem } from './components/Auth.tsx';
-import { MyAccount } from './components/Account.tsx';
-import { WalletSystem } from './components/Wallet.tsx';
-import { ParImparGame } from './components/ParImparGame.tsx';
-import { Button, Card } from './components/UI.tsx';
-import { JaguarLogo } from './components/Icons.tsx';
+import { User, AppView, Bet } from './types';
+import { TopNavigation } from './components/Navigation';
+import { AuthSystem } from './components/Auth';
+import { MyAccount } from './components/Account';
+import { WalletSystem } from './components/Wallet';
+import { ParImparGame } from './components/ParImparGame';
+import { Button, Card } from './components/UI';
+import { JaguarLogo } from './components/Icons';
 
 const INITIAL_MOCK_BETS: Bet[] = [
   { id: 201, creator: 'Mestre_Do_Pix', amount: 10.00, type: 'par', status: 'open', creatorFingers: 2 },
@@ -62,7 +62,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-emerald-950 text-white font-sans overflow-x-hidden selection:bg-amber-400">
+    <div className="min-h-screen bg-[#022c22] text-white font-sans overflow-x-hidden selection:bg-amber-400">
       <TopNavigation user={user} onNavigate={setView} />
       
       <main className="max-w-5xl mx-auto px-4 pt-4 md:pt-10 pb-28 md:pb-12">

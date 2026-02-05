@@ -5,9 +5,7 @@ import App from './App.tsx';
 
 const rootElement = document.getElementById('root');
 
-if (!rootElement) {
-  console.error("Critical Error: Root element not found");
-} else {
+if (rootElement) {
   try {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
@@ -15,11 +13,12 @@ if (!rootElement) {
         <App />
       </React.StrictMode>
     );
-    // Notifica o index.html que o React foi montado com sucesso
+    
+    // Sinaliza para o HTML que o React foi montado e o app está pronto
     (window as any).JaguarReady = true;
     window.dispatchEvent(new Event('JaguarMounted'));
   } catch (error) {
-    console.error("React Mounting Error:", error);
+    console.error("Erro fatal ao montar aplicação Jaguar:", error);
     const errorMsg = document.getElementById('error-msg');
     if (errorMsg) errorMsg.innerText = String(error);
   }

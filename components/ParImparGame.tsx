@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, PlusCircle, Search, Trash2, Gamepad2, Users } from 'lucide-react';
-import { User, Bet, GameType, SocketMessage } from '../types.ts';
-import { JaguarSocket } from '../services/socket.ts';
-import { Button, Card, Input } from './UI.tsx';
-import { HandIcon } from './Icons.tsx';
+import { User, Bet, GameType, SocketMessage } from '../types';
+import { JaguarSocket } from '../services/socket';
+import { Button, Card, Input } from './UI';
+import { HandIcon } from './Icons';
 
 interface GameProps {
   user: User;
@@ -115,7 +115,6 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
     });
   };
 
-  // Safe filtering
   const lobbyBets = (bets || []).filter(b => 
     b.status === 'open' && 
     b.creator !== user.username && 
@@ -230,23 +229,6 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
          <Button onClick={() => setView('create')} variant="secondary" className="px-6 h-11"><PlusCircle size={18} /> NOVO DESAFIO</Button>
       </div>
 
-      {myOpenBets.length > 0 && (
-        <div className="space-y-3">
-          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">Meus Desafios</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {myOpenBets.map(bet => (
-              <Card key={bet.id} className="bg-emerald-900/40 p-4 flex justify-between items-center border-amber-400/20">
-                 <div>
-                    <p className="text-[8px] text-amber-400 uppercase font-black">Postado por você</p>
-                    <p className="text-lg font-black text-white italic leading-none">R$ {bet.amount.toFixed(2)}</p>
-                 </div>
-                 <button onClick={() => setBets(prev => prev.filter(b => b.id !== bet.id))} className="text-rose-400 p-3 hover:bg-rose-400/10 rounded-2xl transition-all"><Trash2 size={20} /></button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-950/40" size={16} />
@@ -280,12 +262,6 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
                </div>
             </Card>
           ))}
-          {lobbyBets.length === 0 && !myOpenBets.length && (
-             <div className="col-span-full py-20 text-center bg-white/5 rounded-[3rem] border-2 border-dashed border-white/5">
-                <Gamepad2 size={48} className="mx-auto text-white/5 mb-4" />
-                <p className="text-white/20 text-xs font-black italic uppercase tracking-widest">Nenhum duelo disponível</p>
-             </div>
-          )}
         </div>
       </div>
     </div>

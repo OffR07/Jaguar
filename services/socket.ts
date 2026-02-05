@@ -1,17 +1,17 @@
 
-import { SocketMessage } from '../types';
+import { SocketMessage } from '../types.ts';
 
 export class JaguarSocket {
   private onMessage: (msg: SocketMessage) => void;
-  private mockDelay: number = 2000;
+  private mockDelay: number = 1800;
 
   constructor(onMessage: (msg: SocketMessage) => void) {
     this.onMessage = onMessage;
-    console.log("🐍 Jaguar Python Socket Inicializado");
+    console.log("🐍 Jaguar Engine Online");
   }
 
   send(message: any) {
-    console.log("📤 [PYTHON-ENGINE] Recebendo ação:", message.action);
+    console.log("📤 Enviando para servidor:", message.action);
     setTimeout(() => {
       this.processPythonLogic(message);
     }, this.mockDelay);
@@ -27,11 +27,17 @@ export class JaguarSocket {
       const creatorWins = (creatorType === 'par' && isTotalPar) || (creatorType === 'impar' && !isTotalPar);
       const winnerName = creatorWins ? creatorName : playerName;
 
-      // CÁLCULO DE COMISSÃO (SPLIT)
-      // 2% do total vai para a plataforma como comissão de intermediação.
-      // O prêmio do vencedor é 97% do valor total da aposta (ajustado para as taxas BaaS).
-      const platformFee = amount * 0.02;
-      const prizePool = amount * 0.97;
+      // REGRA: 3% de comissão Jaguar
+      const commissionRate = 0.03;
+      const totalPot = amount * 2;
+      const commission = totalPot * commissionRate;
+      const netPrize = totalPot - commission;
+
+      // O vencedor recebe o prêmio líquido.
+      // O perdedor não recebe nada (já pagou na entrada).
+      const payout = winnerName === playerName ? netPrize : 0; 
+      // Se o criador ganhar, o servidor apenas notifica. No mock, o saldo do criador é gerido localmente.
+      // Para o jogador atual (Challenger), o payout é o prêmio se ganhar, ou 0 se perder.
 
       const response: SocketMessage = {
         type: 'GAME_RESULT',
@@ -40,9 +46,9 @@ export class JaguarSocket {
           winner: winnerName,
           resultTotal: total,
           resultPar: isTotalPar,
-          payout: creatorWins ? -amount : prizePool, // O vencedor recebe o valor líquido calculado pelo split
+          payout: payout, 
           serverTimestamp: Date.now(),
-          commissionTaken: platformFee
+          commissionTaken: commission
         }
       };
       
@@ -51,6 +57,6 @@ export class JaguarSocket {
   }
 
   disconnect() {
-    console.log("🔌 Desconectado do Backend Python");
+    console.log("🔌 Jaguar Engine Offline");
   }
 }

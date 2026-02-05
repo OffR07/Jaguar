@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, PlusCircle, Search, Trash2, Gamepad2, Users } from 'lucide-react';
-import { User, Bet, GameType, SocketMessage } from '../types';
-import { JaguarSocket } from '../services/socket';
-import { Button, Card, Input } from './UI';
-import { HandIcon } from './Icons';
+import { User, Bet, GameType, SocketMessage } from '../types.ts';
+import { JaguarSocket } from '../services/socket.ts';
+import { Button, Card, Input } from './UI.tsx';
+import { HandIcon } from './Icons.tsx';
 
 interface GameProps {
   user: User;
@@ -30,7 +30,6 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
   const socketRef = useRef<JaguarSocket | null>(null);
 
   const handleSocketMessage = useCallback((msg: SocketMessage) => {
-    console.log("📥 Resultado do Servidor:", msg);
     if (msg.type === 'GAME_RESULT') {
       const { winner, resultTotal, resultPar, payout, betId } = msg.payload;
       
@@ -45,7 +44,7 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
 
       setBets(prev => prev.map(b => b.id === betId ? { ...b, status: 'finished', winner } : b));
       
-      if (winner === user.username) {
+      if (winner === user.username && payout > 0) {
           updateBalance(payout);
       }
       setGameState('result');
@@ -59,8 +58,6 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
 
   const handleCreateBet = () => {
     const val = parseFloat(newBet.amount.replace(',', '.'));
-    console.log("🚀 Criando aposta de R$", val);
-
     if (isNaN(val) || val <= 0) return alert("Insira um valor válido!");
     if (val > user.balance) return alert("Saldo insuficiente!");
     
@@ -80,10 +77,8 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
   };
 
   const handleEnterBet = (bet: Bet) => {
-    console.log("🤝 Aceitando duelo de:", bet.creator);
-    if (user.balance < bet.amount) return alert("Você precisa de pelo menos R$ " + bet.amount.toFixed(2) + " para este duelo!");
+    if (user.balance < bet.amount) return alert("Você precisa de R$ " + bet.amount.toFixed(2) + " para aceitar.");
     
-    // Reset crítico antes da transição
     setPlayerFingers(null);
     setGameState('selection');
     setActiveBet(bet);
@@ -95,7 +90,6 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
     e.preventDefault();
     if (!activeBet || playerFingers === null) return;
     
-    console.log("👊 Jogando dedos:", playerFingers);
     updateBalance(-activeBet.amount);
     setGameState('animating');
     
@@ -112,14 +106,11 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
     });
   };
 
-  const myBets = bets.filter(b => b.creator === user.username && b.status === 'open');
-  const othersBets = bets.filter(b => b.creator !== user.username && b.status === 'open' && b.creator.toLowerCase().includes(filterText.toLowerCase()));
-
   if (view === 'create') {
     return (
       <div className="space-y-4 animate-in fade-in max-w-sm mx-auto p-4">
         <button onClick={() => setView('lobby')} className="flex items-center gap-1 text-amber-400 font-black text-[10px] uppercase">
-          <ChevronLeft size={16} /> Voltar Arena
+          <ChevronLeft size={16} /> Voltar
         </button>
         <Card className="bg-white p-6 shadow-2xl">
           <h3 className="text-xl font-black text-emerald-950 uppercase italic text-center mb-6">Criar Desafio</h3>
@@ -131,8 +122,8 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
               onChange={e => setNewBet({...newBet, amount: e.target.value})} 
             />
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setNewBet({...newBet, type: 'par'})} className={`py-3 rounded-xl font-black text-xs transition-all ${newBet.type === 'par' ? 'bg-emerald-950 text-amber-400' : 'bg-emerald-50 text-emerald-950 opacity-40'}`}>EU SOU PAR</button>
-              <button onClick={() => setNewBet({...newBet, type: 'impar'})} className={`py-3 rounded-xl font-black text-xs transition-all ${newBet.type === 'impar' ? 'bg-emerald-950 text-amber-400' : 'bg-emerald-50 text-emerald-950 opacity-40'}`}>EU SOU ÍMPAR</button>
+              <button onClick={() => setNewBet({...newBet, type: 'par'})} className={`py-3 rounded-xl font-black text-xs transition-all ${newBet.type === 'par' ? 'bg-emerald-950 text-amber-400' : 'bg-emerald-50 text-emerald-950 opacity-40'}`}>PAR</button>
+              <button onClick={() => setNewBet({...newBet, type: 'impar'})} className={`py-3 rounded-xl font-black text-xs transition-all ${newBet.type === 'impar' ? 'bg-emerald-950 text-amber-400' : 'bg-emerald-50 text-emerald-950 opacity-40'}`}>ÍMPAR</button>
             </div>
             <div className="bg-emerald-50 p-3 rounded-2xl grid grid-cols-6 gap-2">
               {[0,1,2,3,4,5].map(n => (
@@ -141,7 +132,7 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
                 </button>
               ))}
             </div>
-            <Button onClick={handleCreateBet} className="w-full py-4">Lançar Duelo na Arena</Button>
+            <Button onClick={handleCreateBet} className="w-full py-4 shadow-amber-950/20">POSTAR DESAFIO</Button>
           </div>
         </Card>
       </div>
@@ -152,7 +143,7 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
     return (
       <div className="space-y-4 animate-in zoom-in max-w-md mx-auto p-2">
         <button onClick={() => setView('lobby')} className="text-white/40 font-black text-[10px] uppercase flex items-center gap-1">
-          <ChevronLeft size={16} /> Fugir do Duelo
+          <ChevronLeft size={16} /> Sair
         </button>
 
         <Card className="bg-emerald-900 border-none p-6 min-h-[350px] flex flex-col justify-between shadow-2xl relative">
@@ -185,19 +176,19 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
           <div className="bg-black/40 -mx-6 -mb-6 p-6 border-t border-white/5 rounded-t-[3rem]">
             {gameState === 'selection' && (
               <div className="space-y-4">
-                <p className="text-center text-[10px] font-black text-white/40 uppercase tracking-widest italic">Prepare seus dedos:</p>
+                <p className="text-center text-[10px] font-black text-white/40 uppercase tracking-widest italic">Escolha seus dedos:</p>
                 <div className="flex justify-center gap-2">
                   {[0,1,2,3,4,5].map(n => (
                     <button key={n} onClick={() => setPlayerFingers(n)} className={`w-12 h-12 rounded-2xl text-xl font-black transition-all ${playerFingers === n ? 'bg-amber-400 text-emerald-950 scale-110 shadow-lg' : 'bg-white/5 text-white/30'}`}>{n}</button>
                   ))}
                 </div>
-                <Button onClick={handlePlay} disabled={playerFingers === null} className="w-full h-14">CONFIRMAR JOGADA</Button>
+                <Button onClick={handlePlay} disabled={playerFingers === null} className="w-full h-14">DUELAR AGORA</Button>
               </div>
             )}
             {gameState === 'result' && (
               <div className="text-center space-y-6 py-4">
                 <p className={`text-3xl font-black italic ${activeBet.winner === user.username ? 'text-amber-400' : 'text-white/20'}`}>
-                  {activeBet.winner === user.username ? 'VOCÊ VENCEU! 🐆' : 'DERROTA'}
+                  {activeBet.winner === user.username ? 'VITÓRIA! 🐆' : 'DERROTA'}
                 </p>
                 <Button onClick={() => setView('lobby')} variant="secondary" className="w-full">VOLTAR PARA ARENA</Button>
               </div>
@@ -218,40 +209,18 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
          <Button onClick={() => setView('create')} variant="secondary" className="px-6 h-11"><PlusCircle size={18} /> NOVO DESAFIO</Button>
       </div>
 
-      {myBets.length > 0 && (
-        <div className="space-y-3">
-          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">Meus Desafios Postados</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {myBets.map(bet => (
-              <Card key={bet.id} className="bg-emerald-900/40 p-4 flex justify-between items-center border-amber-400/20">
-                 <div>
-                    <p className="text-[8px] text-amber-400 uppercase font-black">Aguardando Oponente</p>
-                    <p className="text-lg font-black text-white italic leading-none">R$ {bet.amount.toFixed(2)}</p>
-                 </div>
-                 <button onClick={() => setBets(prev => prev.filter(b => b.id !== bet.id))} className="text-rose-400 p-3 hover:bg-rose-400/10 rounded-2xl transition-all"><Trash2 size={20} /></button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="space-y-4">
-        <div className="flex items-center gap-2 px-2">
-          <Users size={14} className="text-emerald-400" />
-          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Arena de Duelos</p>
-        </div>
-        
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-950/40" size={16} />
           <input 
-            type="text" placeholder="Buscar por jogador desafiante..." 
+            type="text" placeholder="Filtrar por jogador..." 
             className="w-full bg-white rounded-2xl py-4 pl-12 pr-4 font-bold text-xs text-emerald-950 outline-none shadow-lg" 
             value={filterText} onChange={e => setFilterText(e.target.value)} 
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {othersBets.map(bet => (
+          {bets.filter(b => b.status === 'open' && b.creator !== user.username && b.creator.toLowerCase().includes(filterText.toLowerCase())).map(bet => (
             <Card 
               key={bet.id} 
               className="bg-white p-5 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer border-none shadow-xl group" 
@@ -259,11 +228,8 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
             >
                <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2">
-                     <div className="w-10 h-10 bg-emerald-950 rounded-2xl flex items-center justify-center text-amber-400 font-black italic shadow-lg">{bet.creator[0]}</div>
-                     <div>
-                        <p className="text-[9px] text-emerald-900/40 uppercase font-black">Jogador</p>
-                        <p className="font-black text-emerald-950 text-xs uppercase truncate max-w-[90px]">{bet.creator}</p>
-                     </div>
+                     <div className="w-10 h-10 bg-emerald-950 rounded-2xl flex items-center justify-center text-amber-400 font-black italic">{bet.creator[0]}</div>
+                     <p className="font-black text-emerald-950 text-xs uppercase truncate max-w-[90px]">{bet.creator}</p>
                   </div>
                   <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${bet.type === 'par' ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'}`}>{bet.type}</span>
                </div>
@@ -271,18 +237,11 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
                   <p className="text-[9px] font-black text-emerald-900/20 uppercase tracking-widest mb-1">Prêmio Disponível</p>
                   <p className="text-2xl font-black text-emerald-950 italic leading-none">R$ {(bet.amount * 1.97).toFixed(2)}</p>
                </div>
-               <div className="w-full bg-emerald-950 text-white font-black text-[11px] py-4 rounded-2xl text-center uppercase tracking-[0.2em] shadow-lg group-hover:bg-emerald-800 transition-colors">
+               <div className="w-full bg-emerald-950 text-white font-black text-[11px] py-4 rounded-2xl text-center uppercase tracking-widest shadow-lg group-hover:bg-emerald-800 transition-colors">
                  ACEITAR DUELO
                </div>
             </Card>
           ))}
-          {othersBets.length === 0 && (
-             <div className="col-span-full py-20 text-center bg-white/5 rounded-[3rem] border-2 border-dashed border-white/5">
-                <Gamepad2 size={48} className="mx-auto text-white/5 mb-4" />
-                <p className="text-white/20 text-xs font-black italic uppercase tracking-widest">Ninguém desafiando agora...</p>
-                <button onClick={() => setView('create')} className="text-amber-400 font-black text-xs uppercase mt-4 hover:underline">Sê o primeiro a desafiar!</button>
-             </div>
-          )}
         </div>
       </div>
     </div>

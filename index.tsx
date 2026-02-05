@@ -1,9 +1,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-
-console.log("🚀 Jaguar Arena: Iniciando motor gráfico...");
+import App from './App.tsx';
 
 const rootElement = document.getElementById('root');
 
@@ -16,13 +14,11 @@ if (rootElement) {
       </React.StrictMode>
     );
     
-    // Notifica o index.html que o processo foi concluído com sucesso
     (window as any).JaguarReady = true;
     window.dispatchEvent(new Event('JaguarMounted'));
-    console.log("✅ Jaguar Arena: Sistema carregado com sucesso.");
   } catch (error) {
-    console.error("❌ Jaguar Arena: Erro fatal durante a montagem:", error);
-    const errorMsg = document.getElementById('error-msg');
-    if (errorMsg) errorMsg.innerText = "Falha interna no React: " + String(error);
+    console.error("Erro na montagem:", error);
+    const debug = document.getElementById('debug-info');
+    if (debug) debug.innerText = "Falha no React: " + String(error);
   }
 }

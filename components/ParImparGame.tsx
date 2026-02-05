@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, PlusCircle, Search, Trash2, Gamepad2, Users } from 'lucide-react';
-import { User, Bet, GameType, SocketMessage } from '../types';
-import { JaguarSocket } from '../services/socket';
-import { Button, Card, Input } from './UI';
-import { HandIcon } from './Icons';
+import { User, Bet, GameType, SocketMessage } from '../types.ts';
+import { JaguarSocket } from '../services/socket.ts';
+import { Button, Card, Input } from './UI.tsx';
+import { HandIcon } from './Icons.tsx';
 
 interface GameProps {
   user: User;
@@ -121,19 +121,14 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
     b.creator.toLowerCase().includes(filterText.toLowerCase())
   );
 
-  const myOpenBets = (bets || []).filter(b => 
-    b.creator === user.username && 
-    b.status === 'open'
-  );
-
   if (view === 'create') {
     return (
       <div className="space-y-4 animate-in fade-in max-w-sm mx-auto p-4">
         <button onClick={() => setView('lobby')} className="flex items-center gap-1 text-amber-400 font-black text-[10px] uppercase">
           <ChevronLeft size={16} /> Voltar
         </button>
-        <Card className="bg-white p-6 shadow-2xl">
-          <h3 className="text-xl font-black text-emerald-950 uppercase italic text-center mb-6">Criar Desafio</h3>
+        <Card className="bg-white p-6 shadow-2xl text-emerald-950">
+          <h3 className="text-xl font-black uppercase italic text-center mb-6">Criar Desafio</h3>
           <div className="space-y-6">
             <Input 
               label="Valor da Aposta (R$)" 
@@ -243,19 +238,19 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
           {lobbyBets.map(bet => (
             <Card 
               key={bet.id} 
-              className="bg-white p-5 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer border-none shadow-xl group" 
+              className="bg-white p-5 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer border-none shadow-xl group text-emerald-950" 
               onClick={() => handleEnterBet(bet)}
             >
                <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-2">
                      <div className="w-10 h-10 bg-emerald-950 rounded-2xl flex items-center justify-center text-amber-400 font-black italic">{bet.creator[0]}</div>
-                     <p className="font-black text-emerald-950 text-xs uppercase truncate max-w-[90px]">{bet.creator}</p>
+                     <p className="font-black text-xs uppercase truncate max-w-[90px]">{bet.creator}</p>
                   </div>
                   <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${bet.type === 'par' ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'}`}>{bet.type}</span>
                </div>
                <div className="mb-4">
                   <p className="text-[9px] font-black text-emerald-900/20 uppercase tracking-widest mb-1">Prêmio Disponível</p>
-                  <p className="text-2xl font-black text-emerald-950 italic leading-none">R$ {(bet.amount * 1.97).toFixed(2)}</p>
+                  <p className="text-2xl font-black italic leading-none">R$ {(bet.amount * 1.97).toFixed(2)}</p>
                </div>
                <div className="w-full bg-emerald-950 text-white font-black text-[11px] py-4 rounded-2xl text-center uppercase tracking-widest shadow-lg group-hover:bg-emerald-800 transition-colors">
                  ACEITAR DUELO

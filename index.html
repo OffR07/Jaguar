@@ -44,9 +44,9 @@
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
     "lucide-react": "https://esm.sh/lucide-react@0.463.0",
     "@google/genai": "https://esm.sh/@google/genai@1.4.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
@@ -58,8 +58,8 @@
   <body>
     <div id="error-display">
       <h1 style="color: #fbbf24; font-size: 24px; margin-bottom: 10px; font-weight: 900;">FALHA NO MOTOR JAGUAR</h1>
-      <p id="error-msg">O motor de processamento TSX falhou em iniciar no seu navegador.</p>
-      <div id="debug-info" style="font-size: 10px; color: #ffffff40; margin-top: 10px;"></div>
+      <p id="error-msg" style="max-width: 600px; font-size: 14px; opacity: 0.8;">O motor de processamento TSX falhou em iniciar no seu navegador.</p>
+      <div id="debug-info" style="font-size: 10px; color: #ffffff40; margin-top: 15px; background: #00000040; padding: 10px; border-radius: 8px;">Aguardando logs...</div>
       <button onclick="location.reload()" style="margin-top: 20px; background: #fbbf24; color: #022c22; padding: 12px 24px; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Reiniciar Arena</button>
     </div>
 
@@ -89,12 +89,12 @@
 
       window.onerror = function(msg, url, lineNo, columnNo, error) {
         const debug = document.getElementById('debug-info');
-        if(debug) debug.innerText = `Erro: ${msg} em ${lineNo}:${columnNo}`;
+        if(debug) debug.innerText = `ERRO: ${msg}\nURL: ${url}\nLINHA: ${lineNo}`;
         return false;
       };
     </script>
 
     <script src="https://esm.sh/run" type="module"></script>
-    <script type="text/tsx" src="index.tsx"></script>
+    <script type="text/tsx" src="./index.tsx"></script>
   </body>
 </html>

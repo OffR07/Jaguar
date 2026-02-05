@@ -14,9 +14,10 @@ interface GameProps {
   setBets: React.Dispatch<React.SetStateAction<Bet[]>>;
 }
 
-export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance, bets, setBets }) => {
+export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance, bets = [], setBets }) => {
   const [view, setView] = useState<'lobby' | 'create' | 'play'>('lobby');
   const [filterText, setFilterText] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [newBet, setNewBet] = useState<{ amount: string; type: GameType; fingers: number }>({ 
     amount: "10.00", 
     type: 'par', 
@@ -42,12 +43,13 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
         challengerFingers: playerFingers || 0
       }) : null);
 
-      setBets(prev => prev.map(b => b.id === betId ? { ...b, status: 'finished', winner } : b));
+      setBets(prev => (prev || []).map(b => b.id === betId ? { ...b, status: 'finished', winner } : b));
       
       if (winner === user.username && payout > 0) {
           updateBalance(payout);
       }
       setGameState('result');
+      setIsProcessing(false);
     }
   }, [user.username, playerFingers, updateBalance, setBets]);
 
@@ -57,10 +59,12 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
   }, [handleSocketMessage]);
 
   const handleCreateBet = () => {
+    if (isProcessing) return;
     const val = parseFloat(newBet.amount.replace(',', '.'));
     if (isNaN(val) || val <= 0) return alert("Insira um valor válido!");
     if (val > user.balance) return alert("Saldo insuficiente!");
     
+    setIsProcessing(true);
     const bet: Bet = {
       id: Date.now(),
       creator: user.username,
@@ -71,25 +75,30 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
     };
     
     updateBalance(-val);
-    setBets(prev => [bet, ...prev]);
+    setBets(prev => [bet, ...(prev || [])]);
     setView('lobby');
     setNewBet({ amount: "10.00", type: 'par', fingers: 0 });
+    setIsProcessing(false);
   };
 
   const handleEnterBet = (bet: Bet) => {
+    if (isProcessing) return;
     if (user.balance < bet.amount) return alert("Você precisa de R$ " + bet.amount.toFixed(2) + " para aceitar.");
     
+    setIsProcessing(true);
     setPlayerFingers(null);
     setGameState('selection');
     setActiveBet(bet);
     setView('play');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsProcessing(false);
   };
 
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!activeBet || playerFingers === null) return;
+    if (!activeBet || playerFingers === null || isProcessing) return;
     
+    setIsProcessing(true);
     updateBalance(-activeBet.amount);
     setGameState('animating');
     
@@ -105,6 +114,18 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
       }
     });
   };
+
+  // Safe filtering
+  const lobbyBets = (bets || []).filter(b => 
+    b.status === 'open' && 
+    b.creator !== user.username && 
+    b.creator.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  const myOpenBets = (bets || []).filter(b => 
+    b.creator === user.username && 
+    b.status === 'open'
+  );
 
   if (view === 'create') {
     return (
@@ -132,7 +153,7 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
                 </button>
               ))}
             </div>
-            <Button onClick={handleCreateBet} className="w-full py-4 shadow-amber-950/20">POSTAR DESAFIO</Button>
+            <Button onClick={handleCreateBet} disabled={isProcessing} className="w-full py-4 shadow-amber-950/20">POSTAR DESAFIO</Button>
           </div>
         </Card>
       </div>
@@ -182,7 +203,7 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
                     <button key={n} onClick={() => setPlayerFingers(n)} className={`w-12 h-12 rounded-2xl text-xl font-black transition-all ${playerFingers === n ? 'bg-amber-400 text-emerald-950 scale-110 shadow-lg' : 'bg-white/5 text-white/30'}`}>{n}</button>
                   ))}
                 </div>
-                <Button onClick={handlePlay} disabled={playerFingers === null} className="w-full h-14">DUELAR AGORA</Button>
+                <Button onClick={handlePlay} disabled={playerFingers === null || isProcessing} className="w-full h-14">DUELAR AGORA</Button>
               </div>
             )}
             {gameState === 'result' && (
@@ -209,6 +230,23 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
          <Button onClick={() => setView('create')} variant="secondary" className="px-6 h-11"><PlusCircle size={18} /> NOVO DESAFIO</Button>
       </div>
 
+      {myOpenBets.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">Meus Desafios</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {myOpenBets.map(bet => (
+              <Card key={bet.id} className="bg-emerald-900/40 p-4 flex justify-between items-center border-amber-400/20">
+                 <div>
+                    <p className="text-[8px] text-amber-400 uppercase font-black">Postado por você</p>
+                    <p className="text-lg font-black text-white italic leading-none">R$ {bet.amount.toFixed(2)}</p>
+                 </div>
+                 <button onClick={() => setBets(prev => prev.filter(b => b.id !== bet.id))} className="text-rose-400 p-3 hover:bg-rose-400/10 rounded-2xl transition-all"><Trash2 size={20} /></button>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-950/40" size={16} />
@@ -220,7 +258,7 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {bets.filter(b => b.status === 'open' && b.creator !== user.username && b.creator.toLowerCase().includes(filterText.toLowerCase())).map(bet => (
+          {lobbyBets.map(bet => (
             <Card 
               key={bet.id} 
               className="bg-white p-5 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer border-none shadow-xl group" 
@@ -242,6 +280,12 @@ export const ParImparGame: React.FC<GameProps> = ({ user, onBack, updateBalance,
                </div>
             </Card>
           ))}
+          {lobbyBets.length === 0 && !myOpenBets.length && (
+             <div className="col-span-full py-20 text-center bg-white/5 rounded-[3rem] border-2 border-dashed border-white/5">
+                <Gamepad2 size={48} className="mx-auto text-white/5 mb-4" />
+                <p className="text-white/20 text-xs font-black italic uppercase tracking-widest">Nenhum duelo disponível</p>
+             </div>
+          )}
         </div>
       </div>
     </div>

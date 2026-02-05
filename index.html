@@ -57,20 +57,21 @@
   </head>
   <body>
     <div id="error-display">
-      <h1 style="color: #fbbf24; font-size: 24px; margin-bottom: 10px; font-weight: 900;">FALHA NO MOTOR JAGUAR</h1>
-      <p id="error-msg" style="max-width: 600px; font-size: 14px; opacity: 0.8;">O motor de processamento TSX falhou em iniciar no seu navegador.</p>
-      <div id="debug-info" style="font-size: 10px; color: #ffffff40; margin-top: 15px; background: #00000040; padding: 10px; border-radius: 8px;">Aguardando logs...</div>
-      <button onclick="location.reload()" style="margin-top: 20px; background: #fbbf24; color: #022c22; padding: 12px 24px; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Reiniciar Arena</button>
+      <h1 style="color: #fbbf24; font-size: 24px; margin-bottom: 10px; font-weight: 900;">SISTEMA JAGUAR OFFLINE</h1>
+      <p id="error-msg" style="max-width: 600px; font-size: 14px; opacity: 0.8; margin-bottom: 10px;">Falha ao carregar módulos no servidor remoto.</p>
+      <div id="debug-info" style="font-size: 10px; color: #ffffff40; background: #00000040; padding: 10px; border-radius: 8px; font-family: monospace; white-space: pre-wrap;">Aguardando sinal...</div>
+      <button onclick="location.reload()" style="margin-top: 20px; background: #fbbf24; color: #022c22; padding: 12px 24px; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Tentar Reconectar</button>
     </div>
 
     <div id="loader">
       <div class="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-      <p class="mt-4 text-amber-400 font-black italic uppercase tracking-widest text-[10px]">Sincronizando Jaguar Engine...</p>
+      <p class="mt-4 text-amber-400 font-black italic uppercase tracking-widest text-[10px]">Iniciando Motor TSX...</p>
     </div>
 
     <div id="root"></div>
 
     <script type="module">
+      // Se em 15 segundos o React não montar, mostramos erro
       const timeout = setTimeout(() => {
         if (!window.JaguarReady) {
           document.getElementById('error-display').style.display = 'flex';
@@ -87,9 +88,10 @@
         }
       });
 
-      window.onerror = function(msg, url, lineNo, columnNo, error) {
+      // Captura erros globais para exibir na tela (útil no GitHub Pages)
+      window.onerror = function(msg, url, line, col, error) {
         const debug = document.getElementById('debug-info');
-        if(debug) debug.innerText = `ERRO: ${msg}\nURL: ${url}\nLINHA: ${lineNo}`;
+        if(debug) debug.innerText += `\n[ERROR]: ${msg}\nAt: ${url}:${line}`;
         return false;
       };
     </script>

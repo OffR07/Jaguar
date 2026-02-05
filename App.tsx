@@ -84,21 +84,6 @@ export default function App() {
               </div>
               <JaguarLogo className="absolute -right-10 -bottom-10 w-48 h-48 md:w-[40rem] md:h-[40rem] opacity-5 rotate-[20deg] grayscale" />
             </section>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-8">
-               <Card className="p-6 md:p-10 border-white/5 group hover:border-amber-400/20 transition-all">
-                  <h4 className="font-black text-white text-xs md:text-lg uppercase tracking-widest italic mb-2">Segurança Total</h4>
-                  <p className="text-[10px] md:text-xs text-emerald-400/60 font-bold leading-relaxed">Depósitos protegidos via subconta Asaas personalizada.</p>
-               </Card>
-               <Card className="p-6 md:p-10 border-white/5 group hover:border-emerald-400/20 transition-all">
-                  <h4 className="font-black text-white text-xs md:text-lg uppercase tracking-widest italic mb-2">Saque via PIX</h4>
-                  <p className="text-[10px] md:text-xs text-emerald-400/60 font-bold leading-relaxed">Transferência direta para sua chave PIX CPF em segundos.</p>
-               </Card>
-               <Card className="p-6 md:p-10 border-white/5 group hover:border-amber-400/20 transition-all">
-                  <h4 className="font-black text-white text-xs md:text-lg uppercase tracking-widest italic mb-2">Fair Play</h4>
-                  <p className="text-[10px] md:text-xs text-emerald-400/60 font-bold leading-relaxed">Duelos validados em tempo real no servidor Jaguar.</p>
-               </Card>
-            </div>
           </div>
         )}
 

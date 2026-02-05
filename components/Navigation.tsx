@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { User as UserIcon, Wallet } from 'lucide-react';
-import { User, AppView } from '../types';
-import { JaguarLogo } from './Icons';
+import { User, AppView } from '../types.ts';
+import { JaguarLogo } from './Icons.tsx';
 
 interface NavProps {
   user: User;
